@@ -1,1 +1,63 @@
-Tool used for project: ChatGPT
+Tool used for project: ChatGPT-5.6 Luna
+
+First Prompt (9/8/2026):
+---------------------------------------------------------------------------------
+create a c++ function 
+void tokenize(const string str, queue<string>& tokens);
+The function has two arguments, the first 'str' is a string of indeterminate length that contains noisy text. The second 'tokens' is where the function should store results.
+The function should parse str into tokens according to the following rules, any letter or symbol should be it's own token, and adjacent numbers should be combined into one token. Avoid using isdigit or similar functions, make decisions using ascii values.
+Example: str = "f5d.;49:d.sr06" -> tokens = ["f", "5", "d", ".", ";", "49", ":", "d", ".", "s", "r", "06"]
+---------------------------------------------------------------------------------
+GPT response:
+---------------------------------------------------------------------------------
+#include <string>
+#include <queue>
+
+using namespace std;
+
+void tokenize(const string str, queue<string>& tokens)
+{
+    for (int i = 0; i < str.length(); i++)
+    {
+        // Check if current character is a digit using ASCII values
+        if (str[i] >= '0' && str[i] <= '9')
+        {
+            string number;
+
+            // Collect all adjacent digits
+            while (i < str.length() && str[i] >= '0' && str[i] <= '9')
+            {
+                number += str[i];
+                i++;
+            }
+
+            tokens.push(number);
+
+            // The for-loop will increment i again, so move back one
+            i--;
+        }
+        else
+        {
+            // Every non-digit character gets its own token
+            tokens.push(string(1, str[i]));
+        }
+    }
+}
+---------------------------------------------------------------------------------
+Lines 11 and 16 were modified before adding to project to use actual ascii values (48 & 57)
+GPT response was tested using the following code with input str = "f5d.;49:d.sr06"
+No issues were found with the generated code.
+---------------------------------------------------------------------------------
+bool extractIPv4(const string& str, unsigned long& outAddress, int& outPort) {
+    queue<string> tokens;
+    tokenize(str, tokens);
+    int loops = tokens.size();
+    for (int i = 0; i < loops; i++) {
+        cout << tokens.front() << " ";
+        tokens.pop();
+    }
+    cout << endl;
+    return false;
+}
+---------------------------------------------------------------------------------
+The code GPT generated scans each character in the string, if it is a number (determined by ascii value comparison) a while loop collects all adjacent numbers while incrementing i accordingly so that numbers aren't read twice, when the adjacent character is not a number the collective number token is added to the queue. If the character read from string is not a number it is simply added to queue.
