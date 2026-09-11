@@ -61,3 +61,57 @@ bool extractIPv4(const string& str, unsigned long& outAddress, int& outPort) {
 }
 ---------------------------------------------------------------------------------
 The code GPT generated scans each character in the string, if it is a number (determined by ascii value comparison) a while loop collects all adjacent numbers while incrementing i accordingly so that numbers aren't read twice, when the adjacent character is not a number the collective number token is added to the queue. If the character read from string is not a number it is simply added to queue.
+The else statement was later modified to only add numbers periods and colons to the queue.
+---------------------------------------------------------------------------------
+
+Second Prompt (9/11/2026):
+---------------------------------------------------------------------------------
+This code is part of a program to extract IPv4 addresses from noisy text. Create a helper function int strToInt(string str); that takes a string input and converts it into a number. We can assume that any number that is input to the function will always be an integer so no need to check. Do not use functions like stoi(), instead do math (possibly using ascii values if optimal) to convert the number. The function will only be called inside a try catch block so you should throw an exception if an issue is encountered. Reject strings that have leading zeros ("02") or any number above 255.
+---------------------------------------------------------------------------------
+GPT response:
+---------------------------------------------------------------------------------
+int strToInt(string str)
+{
+    if (str.empty())
+        throw invalid_argument("Empty string");
+
+    // Reject leading zeros, e.g. "02"
+    if (str.length() > 1 && str[0] == '0')
+        throw invalid_argument("Leading zero");
+
+    int value = 0;
+
+    for (int i = 0; i < str.length(); i++)
+    {
+        // Make sure the character is a digit using ASCII values
+        if (str[i] < '0' || str[i] > '9')
+            throw invalid_argument("Non-digit character");
+
+        // Convert ASCII digit to its numerical value
+        int digit = str[i] - '0';
+
+        // Build the number
+        value = value * 10 + digit;
+
+        // IPv4 octets cannot exceed 255
+        if (value > 255)
+            throw invalid_argument("Number greater than 255");
+    }
+
+    return value;
+}
+---------------------------------------------------------------------------------
+GPT response was tested using the following code
+The first seven inputs all returned integers, the last ten threw exceptions, the code works as intended
+Note: We are assuming no other format of strings will be sent to strToInt because of the tokenize function
+---------------------------------------------------------------------------------
+string tests[17] = {"0", "1", "5", "50", "55", "200", "255", "256", "999", "9999999", "01", "001", "010", "0255", ".", ":", "a"};
+for (int i = 0; i < 17; i++) {
+    try {
+        cout << strToInt(tests[i]) << endl;
+    }
+    catch (...) {
+        cout << tests[i] << " not valid\n";
+    }
+}
+---------------------------------------------------------------------------------
